@@ -7,12 +7,10 @@ import java.util.ResourceBundle;
 
 
 import it.polito.tdp.spellchecker.model.Dictionary;
-import it.polito.tdp.spellchecker.model.RichWord;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 
@@ -28,7 +26,7 @@ public class SpellCheckerController {
     private URL location;
 
     @FXML
-    private ChoiceBox<String> mnLingua;
+    private ComboBox<String> mnLingua;
 
     @FXML
     private TextArea txtInput;
@@ -52,10 +50,35 @@ public class SpellCheckerController {
     public void setModel(Dictionary model) {
     	
 		this.model = model;
+		txtInput.setDisable(true);
+		txtInput.setText("Selezionare una lingua");
+
+		txtErrate.setDisable(true);
 		mnLingua.getItems().addAll("Italian","English");
+		
+		btnCheck.setDisable(true);
+		btnClear.setDisable(true);
 	
 		}
 
+    @FXML
+	void doActivation(ActionEvent event) {
+		if (mnLingua.getValue() != null) {
+			txtInput.setDisable(false);
+			txtErrate.setDisable(false);
+			btnCheck.setDisable(false);
+			btnClear.setDisable(false);
+			txtInput.clear();
+			txtErrate.clear();
+		} else {
+			txtInput.setDisable(true);
+			txtErrate.setDisable(true);
+			btnCheck.setDisable(true);
+			btnClear.setDisable(true);
+			txtInput.setText("Seleziona una lingua!");
+		}
+	}
+    
     @FXML
     void doClearText(ActionEvent event) {
     	txtInput.clear();
@@ -69,17 +92,30 @@ public class SpellCheckerController {
     @FXML
     void doSpellCheck(ActionEvent event) {
     	inizio = System.nanoTime();
+    	txtErrate.clear();
     	String language = mnLingua.getValue();
-    	model.loadDictionary(language);
+    	
+    	if(!model.loadDictionary(language)) {
+    		txtInput.setText("Errore nel caricamento del dizionario!");
+			return;
+    	}
     	
     	List<String> words = new LinkedList<String>();
     	
+    	String inputText = txtInput.getText().toLowerCase();
+		
+    	if (inputText.isEmpty()) {
+			 txtInput.setText("Inserire un testo da correggere!");
+			return;
+		}
     	
-    	String dato[] = txtInput.getText().toLowerCase().split(" ");
+		inputText = inputText.replaceAll("\n", " ");
+		inputText = inputText.replaceAll("[.,\\/#!$%\\^&\\*;:{}=\\-_`~()\\[\\]]", "");
+    	
+		String dato[] = inputText.split(" ");
     	
     	for(int i = 0; i<dato.length; i++) {
-    		String p;
-    		p = dato[i].replaceAll("[.,\\/#!$%\\^&\\*;:{}=\\-_`~()\\[\\]\"]", "");
+    		String p = dato [i];
     		words.add(p);
     		
     	}

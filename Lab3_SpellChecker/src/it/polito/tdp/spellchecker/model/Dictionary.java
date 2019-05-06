@@ -9,28 +9,39 @@ import java.util.List;
 
 public class Dictionary {
 	
-	private List<String> parole = new LinkedList<String>();
-	private List<RichWord> richWord = new LinkedList<RichWord>();
+	private List<String> paroleDizionario;	//lista delle parole del dizionario
+	private String language;
+	private List<RichWord> richWord = new LinkedList<RichWord>();	//lista delle parole di input
+	
 	//private List<String> parole = new ArrayList<String>();
 	//private List<RichWord> richWord = new ArrayList<RichWord>();
-	private int contatore=0;
-
 	
-	public void loadDictionary (String language) {
+	private int contatore=0;
+	
+	public boolean loadDictionary (String language) {
 		
+		if (paroleDizionario != null && this.language.equals(language)) {
+			return true;
+		}
 		
+		paroleDizionario = new LinkedList<String>();
+		this.language = language;
 		
 		try {
 			FileReader fr = new FileReader("rsc/"+language+".txt");
 			BufferedReader br = new BufferedReader(fr);
 			String word;
 			while ((word = br.readLine()) != null) {
-				parole.add(word);
+				paroleDizionario .add(word);
 			}
 			br.close();
-			 } catch (IOException e){
+			System.out.println("Dizionario " + language + " loaded.");
+			
+			return true;
+		} catch (IOException e){
 			System.out.println("Errore nella lettura del file");
-			}
+			return false;
+		}
 		
 	}
 	
@@ -40,7 +51,7 @@ public class Dictionary {
 			RichWord rw = new RichWord();
 			richWord.add(rw);
 			rw.setParola(parolaInput);
-			if(parole.contains(parolaInput)) {
+			if(paroleDizionario .contains(parolaInput)) {
 				rw.setCorretta(true);					
 			}
 			
@@ -55,8 +66,9 @@ public class Dictionary {
 			RichWord rw = new RichWord();
 			richWord.add(rw);
 			rw.setParola(parolaInput);
-			for(String parolaSalvata:parole) {
-				if(parolaInput.equals(parolaSalvata)) {
+			for(String parolaSalvata:paroleDizionario ) {
+				if(parolaInput.equalsIgnoreCase(parolaSalvata)) { 
+						//equalsIgnoreCase confronta due stringhe senza considerare maiusc/minusc
 					rw.setCorretta(true);					
 				}
 			}
@@ -67,32 +79,34 @@ public class Dictionary {
 	
 	/*
 	public List<RichWord>spellCheckTextDichotomic(List<String> inputTextList){
+		
+		
 		for(String parolaInput : inputTextList) {
 			RichWord rw = new RichWord();
 			richWord.add(rw);
 			rw.setParola(parolaInput);
 			
 			int low = 0;
-			int high = parole.size()-1;
+			int high = paroleDizionario.size();
 			
-			while (low<=high) {
-				int mid = (low+high)/2;
-				if(parolaInput.compareTo(parole.get(mid))==0) {
+			while (low != high) {
+				int mid = low+ (high - low)/2;
+				if(parolaInput.compareToIgnoreCase(paroleDizionario.get(mid))==0) {
 					rw.setCorretta(true); //valore trovato nella posizione mid
 					return null;
 			        }
-				else if (parolaInput.compareTo(parole.get(mid))>0) {
+				else if (parolaInput.compareTo(paroleDizionario .get(mid))>0) {
 					low = mid + 1;
 				}
 				else {
-					high = mid - 1;
+					high = mid;
 				}
 			}
 		}
 		return richWord;
 	}
-	*/
 	
+	*/
 	public String listaOutput() {
 		String lista = "";
 		for(RichWord r : richWord) {
